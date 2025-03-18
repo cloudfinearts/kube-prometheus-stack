@@ -52,3 +52,22 @@ spec:
 #       targetLabel: namespace
 #     - sourceLabels: [__meta_kubernetes_pod_name]
 #       targetLabel: pod
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: app-pod-down
+spec:
+  groups:
+    - name: "app.rules"
+      rules:
+        - alert: PodDown
+          for: 1m
+          expr: sum(up{container="app"}) < 2
+          labels:
+            severity: critical
+            app: app-1
+          annotations:
+            message: The deployment has less than 1 pod running.
+            summary: the current deployment "app" need to have at least 2 replicas running
+            description: there seems to be a mismatch in the number of pod replicas between your alert configuration and the pod replicas
